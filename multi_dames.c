@@ -146,6 +146,15 @@ void init_jeu(Jeu *jeu)
     }
 }
 
+int peut_sauter(Plateau *plateau, int i, int j) {
+    for (int i = -1; i < 2; i++)
+    for (int j = -1; j < 2; j++) {
+        if (plateau[i][j] != 0) {
+            // do something
+        }
+    } 
+}
+
 int main()
 {
     Jeu jeu;
