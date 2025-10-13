@@ -29,3 +29,13 @@ int jeu_joueur_suivant(Jeu *jeu);
 void jeu_charger(Jeu *jeu);
 void jeu_ecrire(Jeu *jeu);
 
+void jeu_charger(Jeu *jeu)
+{
+    scanf("%d%d%d", &jeu->nb_joueurs, &jeu->tour, &jeu->joueur_courant);
+    for (int j = 0; j < jeu->nb_joueurs; j++)
+        scanf("%d%d", &jeu->joueur[j].etat, &jeu->joueur[j].score);
+    scanf("%d%d%d", &jeu->pion_est_saisi, &jeu->pion_i, &jeu->pion_j);
+    for (int i = 0; i < TAILLE; i++)
+        for (int j = 0; j < TAILLE; j++)
+            scanf("%d", &jeu->plateau.pion[i][j]);
+}
