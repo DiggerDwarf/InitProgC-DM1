@@ -34,7 +34,7 @@ enum {
 #define case_valide(i, j) (i >= 0 && i < 8 && j >= 0 && j < 8)
 #define score_pion(pion) (pion == P_VIDE ? 0 : pion == P_BLANC ? 1 : pion == P_ROUGE ? 5 : 8)
 
-inline int abs(n) { return x < 0 ? -x : x; }
+inline int abs(n) { return n < 0 ? -n : n; }
 
 /**
  * \brief Vérifie si un saut est valide
