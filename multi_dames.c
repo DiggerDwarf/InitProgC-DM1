@@ -34,6 +34,15 @@ enum {
 #define case_valide(i, j) (i >= 0 && i < 8 && j >= 0 && j < 8)
 #define score_pion(pion) (pion == P_VIDE ? 0 : pion == P_BLANC ? 1 : pion == P_ROUGE ? 5 : 8)
 
+/**
+ * \brief Vérifie si un saut est valide
+ * \param plateau Le plateau pour vérifier si le saut est valide
+ * \param i La ligne du pion sauteur
+ * \param j La colonne du pion sauteur
+ * \param di Le delta i a ajouter pour la case d'arrivée
+ * \param dj Le delta j a ajouter pour la case d'arrivée
+ * \return 1 si le saut est valide, 0 sinon
+ */
 int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
     if (!di && !dj) return 0;
     if (plateau->pion[i][j] == P_VIDE) return 0;
@@ -43,6 +52,13 @@ int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
     return 1;
 }
 
+/**
+ * \brief Vérifie si un pion peut sauter dans une quelconque direction
+ * \param plateau Le plateau pour vérifier si le pion peut sauter
+ * \param i La ligne du pion à vérifier
+ * \param j La colonne du pion à vérifier
+ * \return 1 si le pion peut sauter, 0 sinon
+ */
 int peut_sauter(Plateau *plateau, int i, int j)
 {
     for (int di = -1; di <= 1; di++)
@@ -53,6 +69,10 @@ int peut_sauter(Plateau *plateau, int i, int j)
     return 0;
 }
 
+/**
+ * \brief Affiche les informations de la partie
+ * \param jeu Le struct contenant les informations de la partie
+ */
 void afficher_info(Jeu *jeu)
 {
     printf("Score:\n    ");
@@ -64,6 +84,10 @@ void afficher_info(Jeu *jeu)
     printf("\nTour: %d\nJoueur %d (score: %d)\nPlateau:\n", jeu->tour, jeu->joueur_courant + 1, jeu->joueur[jeu->joueur_courant].score);
 }
 
+/**
+ * \brief Afficher le plateau
+ * \param jeu Le jeu contenant le plateau
+ */
 void afficher_plateau(Jeu* jeu)
 {
     puts("  | 1 2 3 4 5 6 7 8");
@@ -78,6 +102,10 @@ void afficher_plateau(Jeu* jeu)
     }
 }
 
+/**
+ * \brief Charge une partie
+ * \param jeu Le struct dans lequel charger la partie
+ */
 void jeu_charger(Jeu *jeu)
 {
     scanf("%d%d%d", &jeu->nb_joueurs, &jeu->tour, &jeu->joueur_courant);
@@ -107,6 +135,10 @@ void jeu_ecrire(Jeu *jeu)
 }
 */
 
+/**
+ * \brief Print le struct dans la console
+ * \param jeu La partie
+ */
 void jeu_ecrire(Jeu *jeu)
 {
     printf("%d %d %d\n", jeu->nb_joueurs, jeu->tour, jeu->joueur_courant);
@@ -121,6 +153,13 @@ void jeu_ecrire(Jeu *jeu)
     }
 }
 
+/**
+ * \brief Capturer un pion
+ * \param jeu La partie dans laquelle le pion est capturé
+ * \param i La ligne du pion a capturer
+ * \param j La colonne du pion a capturer
+ * \return 1 si tout s'est bien passé
+ */
 int jeu_capturer(Jeu *jeu, int i, int j)
 {
     jeu->joueur[jeu->joueur_courant].score += score_pion(jeu->plateau.pion[i][j]);
@@ -128,6 +167,13 @@ int jeu_capturer(Jeu *jeu, int i, int j)
     return 1;
 }
 
+/**
+ * \brief Sélectionner un pion
+ * \param jeu La partie dans laquelle sélectionner le pion
+ * \param i La ligne du pion sélectionné
+ * \param j La colonne du pion sélectionné
+ * \return 1 si tout s'est bien passé
+ */
 int jeu_saisir_pion(Jeu *jeu, int i, int j)
 {
     if (!peut_sauter(&jeu->plateau, i, j)) return 0;
@@ -138,6 +184,13 @@ int jeu_saisir_pion(Jeu *jeu, int i, int j)
     return 1;
 }
 
+/**
+ * \brief Fait sauter le pion sélectionné vers une case
+ * \param jeu La partie dans laquelle faire sauter le pion
+ * \param i La ligne de destination
+ * \param j La colinne de destination
+ * \return 1 si tout s'est bien passé
+ */
 int jeu_sauter_vers(Jeu *jeu, int i, int j)
 {
     jeu->plateau.pion[i][j] = jeu->plateau.pion[jeu->pion_i][jeu->pion_j];
@@ -147,12 +200,21 @@ int jeu_sauter_vers(Jeu *jeu, int i, int j)
     return 1;
 }
 
+/**
+ * \brief Permet à un joueur d'arrêter de jouer
+ * \param jeu La partie dans laquelle le joueur arrête de jouer
+ * \return 1 si tout s'est bien passé
+ */
 int jeu_arreter(Jeu *jeu)
 {   
     jeu->joueur[jeu->joueur_courant].etat = 0;
     return 1;
 }
 
+/**
+ * \brief Change le joueur courant
+ * \return 1 si tout s'est bien passé
+ */
 int jeu_joueur_suivant(Jeu *jeu)
 {
     do {
@@ -161,6 +223,13 @@ int jeu_joueur_suivant(Jeu *jeu)
     return 1;
 }
 
+/**
+ * \brief Demande au joueur des coordonnées (ligne colonne)
+ * \param i Le pointeur vers la variable où stocker la ligne
+ * \param j Le pointeur vers la variable où stocker la colonne
+ * \param prompt Le prompt affiché lors de la demande
+ * \param ... Les arguments éventuels pour le formattage du prompt
+ */
 void entree_joueur(int *i, int *j, const char* prompt, ...) {
     va_list valist;
     do {
@@ -173,6 +242,10 @@ void entree_joueur(int *i, int *j, const char* prompt, ...) {
     } while (!case_valide(*i, *j) && puts("Case invalide. "));
 }
 
+/**
+ * \brief Compte le nombre de joueurs actifs
+ * \param jeu La partie dans laquelle compter le nombre de joueurs actifs
+ */
 int compte_joueurs_actifs(Jeu *jeu) {
     int joueurs_actifs = 0;
     for (int i = 0; i < jeu->nb_joueurs; i++)
@@ -182,6 +255,10 @@ int compte_joueurs_actifs(Jeu *jeu) {
     return joueurs_actifs;
 }
 
+/**
+ * \brief Initialise la partie
+ * \param jeu La partie à intialiser 
+ */
 void init_jeu(Jeu *jeu)
 {
     jeu->pion_est_saisi = 0;
@@ -224,6 +301,11 @@ void init_jeu(Jeu *jeu)
     jeu->joueur_courant = 0;
 }
 
+/**
+ * \brief Vérifie si la partie est terminée
+ * \param jeu La partie à vérfier
+ * \return 1 si la partie est finie, 0 sinon
+ */
 int jeu_est_fini(Jeu *jeu) {
     for (unsigned char i = 0; i < 8; i++)
     for (unsigned char j = 0; j < 8; j++)
@@ -233,6 +315,10 @@ int jeu_est_fini(Jeu *jeu) {
     return 1;
 }
 
+/**
+ * \brief Affiche le gagnant de la partie
+ * \param jeu La partie
+ */
 void afficher_gagnant(Jeu *jeu) {
     int gagnant = 0;
     for (unsigned char i = 1; i < jeu->nb_joueurs; i++) {
@@ -247,6 +333,13 @@ void afficher_gagnant(Jeu *jeu) {
     printf("Le gagnant est le joueur %d !\n", gagnant + 1);
 }
 
+/**
+ * \brief Affiche les sauts possibles pour un pion
+ * \param plateau Le plateau pour vérifier les sauts
+ * \param i La ligne du pion sauteur
+ * \param j La colonne du pion sauteur
+
+ */
 void liste_sauts_possibles(Plateau *plateau, int i, int j) {
     printf("Sauts possibles: ");
     for (int di = -1; di <= 1; di++)
