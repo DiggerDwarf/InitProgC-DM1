@@ -265,6 +265,7 @@ int main()
     while (!jeu_est_fini(&jeu)) {
         int i, j;
 
+        printf("\033[2J\033[1;1H");  // you know what this does. everyone's seen it.
         afficher_info(&jeu);
         afficher_plateau(&jeu);
         do {
