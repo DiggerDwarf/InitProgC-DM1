@@ -34,6 +34,8 @@ enum {
 #define case_valide(i, j) (i >= 0 && i < 8 && j >= 0 && j < 8)
 #define score_pion(pion) (pion == P_VIDE ? 0 : pion == P_BLANC ? 1 : pion == P_ROUGE ? 5 : 8)
 
+inline int abs(n) { return x < 0 ? -x : x; }
+
 /**
  * \brief Vérifie si un saut est valide
  * \param plateau Le plateau pour vérifier si le saut est valide
@@ -44,7 +46,7 @@ enum {
  * \return 1 si le saut est valide, 0 sinon
  */
 int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
-    if (!(i - di == 2 || i - di == -2 || i - di == 0) || !(j - dj == 2 || j - dj == -2 || j - dj == 0)) return 0;
+    if (!(abs(i - di) == 2 || i - di == 0) || !(abs(j - dj) == 2 || j - dj == 0)) return 0;
     if (di == i && dj == j) return 0;
     if (plateau->pion[i][j] == P_VIDE) return 0;
     if ((di > 7) || (di < 0) || (dj > 7) || (dj < 0)) return 0;
@@ -117,24 +119,6 @@ void jeu_charger(Jeu *jeu)
         for (int j = 0; j < TAILLE; j++)
             scanf("%d", &jeu->plateau.pion[i][j]);
 }
-
-/* VERSION PLATON
-plateau::pion -> plateau::grille / jeu::pion_i -> jeu::i / jeu::pion_j -> jeu::j
-
-void jeu_ecrire(Jeu *jeu)
-{
-    printf("%d %d %d\n", jeu->nb_joueurs, jeu->tour, jeu->joueur_courant);
-    for (int j = 0; j < jeu->nb_joueurs; j++)
-        printf("%d %d\n", jeu->joueur[j].etat, jeu->joueur[j].score);
-    printf("%d %d %d\n", jeu->pion_est_saisi, jeu->i, jeu->j);
-    for (int i = 0; i < TAILLE; i++) {
-        printf("%d", jeu->plateau.grille[i][0]);
-        for (int j = 1; j < TAILLE; j++)
-            printf(" %d", jeu->plateau.grille[i][j]);
-        putchar('\n');
-    }
-}
-*/
 
 /**
  * \brief Print le struct dans la console
@@ -370,9 +354,9 @@ int main()
         do {
             entree_joueur(&i, &j, "Position du pion sauteur ?");
         } while (!peut_sauter(&jeu.plateau, i, j) && puts("Le pion ne peut pas sauter."));
+        jeu_saisir_pion(&jeu, i, j);
 
         do {
-            jeu_saisir_pion(&jeu, i, j);
             printf("\033[2J\033[1;1H");  // you know what this does. everyone's seen it.
             afficher_info(&jeu);
             afficher_plateau(&jeu);
