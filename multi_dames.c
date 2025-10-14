@@ -39,16 +39,17 @@ enum {
  * \param plateau Le plateau pour vérifier si le saut est valide
  * \param i La ligne du pion sauteur
  * \param j La colonne du pion sauteur
- * \param di Le delta i a ajouter pour la case d'arrivée
- * \param dj Le delta j a ajouter pour la case d'arrivée
+ * \param di La ligne de destination
+ * \param dj Le colonne de destination
  * \return 1 si le saut est valide, 0 sinon
  */
 int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
-    if (!di && !dj) return 0;
+    if (!(i - di == 2 || i - di == -2 || i - di == 0) || !(j - dj == 2 || j - dj == -2 || j - dj == 0)) return 0;
+    if (di == i && dj == j) return 0;
     if (plateau->pion[i][j] == P_VIDE) return 0;
-    if ((i + 2*di > 7) || (i + 2*di < 0) || (j + 2*dj > 7) || (j + 2*dj < 0)) return 0;
-    if (plateau->pion[i + di][j + dj] == P_VIDE) return 0;
-    if (plateau->pion[i + 2*di][j + 2*dj] != P_VIDE) return 0;
+    if ((di > 7) || (di < 0) || (dj > 7) || (dj < 0)) return 0;
+    if (plateau->pion[(di + i)/2][(dj + j)/2] == P_VIDE) return 0;
+    if (plateau->pion[di][dj] != P_VIDE) return 0;
     return 1;
 }
 
@@ -63,7 +64,7 @@ int peut_sauter(Plateau *plateau, int i, int j)
 {
     for (int di = -1; di <= 1; di++)
     for (int dj = -1; dj <= 1; dj++)
-        if (saut_valide(plateau, i, j, di, dj))
+        if (saut_valide(plateau, i, j, i + di*2, j + dj*2))
             return 1;
 
     return 0;
@@ -193,10 +194,13 @@ int jeu_saisir_pion(Jeu *jeu, int i, int j)
  */
 int jeu_sauter_vers(Jeu *jeu, int i, int j)
 {
+    if (!saut_valide(&jeu->plateau, jeu->pion_i, jeu->pion_j, i, j)) return 0;
     jeu->plateau.pion[i][j] = jeu->plateau.pion[jeu->pion_i][jeu->pion_j];
     jeu->plateau.pion[jeu->pion_i][jeu->pion_j] = 0;
     int entre_i = (i + jeu->pion_i) / 2, entre_j = (j + jeu->pion_j) / 2;
     jeu_capturer(jeu, entre_i, entre_j);
+    jeu->pion_i = i;
+    jeu->pion_j = j;
     return 1;
 }
 
@@ -217,9 +221,11 @@ int jeu_arreter(Jeu *jeu)
  */
 int jeu_joueur_suivant(Jeu *jeu)
 {
+    int joueur_initial = jeu->joueur_courant;
     do {
         jeu->joueur_courant = (jeu->joueur_courant+1)%jeu->nb_joueurs;
     } while (!jeu->joueur[jeu->joueur_courant].etat);
+    if (joueur_initial >= jeu->joueur_courant) jeu->tour++;
     return 1;
 }
 
@@ -344,7 +350,7 @@ void liste_sauts_possibles(Plateau *plateau, int i, int j) {
     printf("Sauts possibles: ");
     for (int di = -1; di <= 1; di++)
     for (int dj = -1; dj <= 1; dj++)
-        if (saut_valide(plateau, i, j, di, dj))
+        if (saut_valide(plateau, i, j, i+2*di, j+2*dj))
             printf("(%d, %d) ", i+2*di+1, j+2*dj+1);
     putchar('\n');
 }
@@ -364,9 +370,9 @@ int main()
         do {
             entree_joueur(&i, &j, "Position du pion sauteur ?");
         } while (!peut_sauter(&jeu.plateau, i, j) && puts("Le pion ne peut pas sauter."));
-        jeu_saisir_pion(&jeu, i, j);
 
         do {
+            jeu_saisir_pion(&jeu, i, j);
             printf("\033[2J\033[1;1H");  // you know what this does. everyone's seen it.
             afficher_info(&jeu);
             afficher_plateau(&jeu);
@@ -374,10 +380,9 @@ int main()
             liste_sauts_possibles(&jeu.plateau, i, j);
             do {
                 entree_joueur(&i, &j, "Entrer un saut.");
-            } while (!saut_valide(&jeu.plateau, jeu.pion_i, jeu.pion_j, (i - jeu.pion_i)/2, (j - jeu.pion_j)/2) && puts("Saut invalide."));
+            } while (!saut_valide(&jeu.plateau, jeu.pion_i, jeu.pion_j, i, j) && puts("Saut invalide."));
 
             jeu_sauter_vers(&jeu, i, j);
-            jeu_saisir_pion(&jeu, i, j);
         } while (peut_sauter(&jeu.plateau, i, j));
         jeu.pion_est_saisi = 0;
 
