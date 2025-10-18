@@ -34,8 +34,6 @@ enum {
 #define case_valide(i, j) (i >= 0 && i < 8 && j >= 0 && j < 8)
 #define score_pion(pion) (pion == P_VIDE ? 0 : pion == P_BLANC ? 1 : pion == P_ROUGE ? 5 : 8)
 
-inline int abs(n) { return n < 0 ? -n : n; }
-
 /**
  * \brief Vérifie si un saut est valide
  * \param plateau Le plateau pour vérifier si le saut est valide
@@ -147,6 +145,7 @@ void jeu_ecrire(Jeu *jeu)
  */
 int jeu_capturer(Jeu *jeu, int i, int j)
 {
+    if (!saut_valide(&jeu->plateau, jeu->pion_i, jeu->pion_j, i, j)) return 0;
     jeu->joueur[jeu->joueur_courant].score += score_pion(jeu->plateau.pion[i][j]);
     jeu->plateau.pion[i][j] = P_VIDE;
     return 1;
@@ -194,7 +193,8 @@ int jeu_sauter_vers(Jeu *jeu, int i, int j)
  * \return 1 si tout s'est bien passé
  */
 int jeu_arreter(Jeu *jeu)
-{   
+{
+    if (compte_joueurs_actifs(jeu) <= 1) return 0;
     jeu->joueur[jeu->joueur_courant].etat = 0;
     return 1;
 }
@@ -205,6 +205,9 @@ int jeu_arreter(Jeu *jeu)
  */
 int jeu_joueur_suivant(Jeu *jeu)
 {
+    jeu->pion_est_saisi = 0;
+    jeu->pion_i = 0;
+    jeu->pion_j = 0;
     int joueur_initial = jeu->joueur_courant;
     do {
         jeu->joueur_courant = (jeu->joueur_courant+1)%jeu->nb_joueurs;
