@@ -2,7 +2,7 @@
 all: build run
 
 build:
-	gcc multi_dames.c -o multi_dames -Wall -Wextra -Werror -std=c17
+	gcc multi_dames.c -o multi_dames -Wall -Wextra -Werror -std=c17 -O2
 
 clean:
 	rm multi_dames -f

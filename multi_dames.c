@@ -245,7 +245,7 @@ void entree_joueur(int *i, int *j, const char* prompt, ...) {
         printf(" (ligne colonne) ");
         scanf("%d%d", i, j);
         (*i)--; (*j)--;
-    } while (!case_valide(*i, *j) && puts("Case invalide. "));
+    } while (!case_valide(*i, *j) && printf("Case invalide.\n"));
 }
 
 /**
@@ -355,8 +355,8 @@ int main()
         afficher_info(&jeu);
         afficher_plateau(&jeu);
         do {
-            entree_joueur(&i, &j, "Position du pion sauteur ?");
-        } while (!pion_peut_sauter(&jeu.plateau, i, j) && puts("Le pion ne peut pas sauter."));
+            entree_joueur(&i, &j, "Joueur %d, Position du pion sauteur ?", jeu.joueur_courant);
+        } while (!pion_peut_sauter(&jeu.plateau, i, j) && printf("Le pion ne peut pas sauter.\n"));
         jeu_saisir_pion(&jeu, i, j);
 
         do {
@@ -367,7 +367,7 @@ int main()
             liste_sauts_possibles(&jeu.plateau, i, j);
             do {
                 entree_joueur(&i, &j, "Entrer un saut.");
-            } while (!saut_valide(&jeu.plateau, jeu.pion_i, jeu.pion_j, i, j) && puts("Saut invalide."));
+            } while (!saut_valide(&jeu.plateau, jeu.pion_i, jeu.pion_j, i, j) && printf("Saut invalide.\n"));
 
             jeu_sauter_vers(&jeu, i, j);
         } while (pion_peut_sauter(&jeu.plateau, i, j));
@@ -376,7 +376,7 @@ int main()
         if (compte_joueurs_actifs(&jeu) > 1) {
             int quitter;
             do {
-                printf("Arrêter ? (1=oui, 0=non) ");
+                printf("Arreter ? (1=oui, 0=non) ");
                 scanf("%d", &quitter);
             } while (quitter != 0 && quitter != 1);
             if (quitter) jeu_arreter(&jeu);
