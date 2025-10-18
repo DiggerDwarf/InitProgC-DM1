@@ -25,14 +25,60 @@ typedef struct {
 } Jeu;
 
 enum {
-    P_VIDE = 0,
-    P_BLANC = 1,
-    P_ROUGE = 2,
-    P_NOIR = 3
+    P_VIDE,
+    P_BLANC,
+    P_ROUGE,
+    P_NOIR
 };
 
 #define case_valide(i, j) (i >= 0 && i < 8 && j >= 0 && j < 8)
 #define score_pion(pion) (pion == P_VIDE ? 0 : pion == P_BLANC ? 1 : pion == P_ROUGE ? 5 : 8)
+
+/**
+ * \brief Charge une partie
+ * \param jeu Le struct dans lequel charger la partie
+ */
+void jeu_charger(Jeu *jeu)
+{
+    scanf("%d%d%d", &jeu->nb_joueurs, &jeu->tour, &jeu->joueur_courant);
+    for (int j = 0; j < jeu->nb_joueurs; j++)
+        scanf("%d%d", &jeu->joueur[j].etat, &jeu->joueur[j].score);
+    scanf("%d%d%d", &jeu->pion_est_saisi, &jeu->pion_i, &jeu->pion_j);
+    for (int i = 0; i < TAILLE; i++)
+        for (int j = 0; j < TAILLE; j++)
+            scanf("%d", &jeu->plateau.pion[i][j]);
+}
+
+/**
+ * \brief Print le struct dans la console
+ * \param jeu La partie
+ */
+void jeu_ecrire(Jeu *jeu)
+{
+    printf("%d %d %d\n", jeu->nb_joueurs, jeu->tour, jeu->joueur_courant);
+    for (int j = 0; j < jeu->nb_joueurs; j++)
+        printf("%d %d\n", jeu->joueur[j].etat, jeu->joueur[j].score);
+    printf("%d %d %d\n", jeu->pion_est_saisi, jeu->pion_i, jeu->pion_j);
+    for (int i = 0; i < TAILLE; i++) {
+        printf("%d", jeu->plateau.pion[i][0]);
+        for (int j = 1; j < TAILLE; j++)
+            printf(" %d", jeu->plateau.pion[i][j]);
+        putchar('\n');
+    }
+}
+
+/**
+ * \brief Compte le nombre de joueurs actifs
+ * \param jeu La partie dans laquelle compter le nombre de joueurs actifs
+ */
+int compte_joueurs_actifs(Jeu *jeu) {
+    int joueurs_actifs = 0;
+    for (int i = 0; i < jeu->nb_joueurs; i++)
+        if (jeu->joueur[i].etat)
+            joueurs_actifs++;
+    
+    return joueurs_actifs;
+}
 
 /**
  * \brief Vérifie si un saut est valide
@@ -44,13 +90,14 @@ enum {
  * \return 1 si le saut est valide, 0 sinon
  */
 int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
-    if (!(abs(i - di) == 2 || i - di == 0) || !(abs(j - dj) == 2 || j - dj == 0)) return 0;
-    if (di == i && dj == j) return 0;
-    if (plateau->pion[i][j] == P_VIDE) return 0;
-    if ((di > 7) || (di < 0) || (dj > 7) || (dj < 0)) return 0;
-    if (plateau->pion[(di + i)/2][(dj + j)/2] == P_VIDE) return 0;
-    if (plateau->pion[di][dj] != P_VIDE) return 0;
-    return 1;
+    return (
+        (abs(i - di) == 2 || i - di == 0) &&
+        (abs(j - dj) == 2 || j - dj == 0) &&
+        (!(di == i && dj == j)) &&
+        plateau->pion[(di + i)/2][(dj + j)/2] != P_VIDE &&
+        plateau->pion[di][dj] == P_VIDE &&
+        case_valide(di, dj)
+    );
 }
 
 /**
@@ -60,13 +107,12 @@ int saut_valide(Plateau *plateau, int i, int j, int di, int dj) {
  * \param j La colonne du pion à vérifier
  * \return 1 si le pion peut sauter, 0 sinon
  */
-int peut_sauter(Plateau *plateau, int i, int j)
+int pion_peut_sauter(Plateau *plateau, int i, int j)
 {
     for (int di = -1; di <= 1; di++)
     for (int dj = -1; dj <= 1; dj++)
         if (saut_valide(plateau, i, j, i + di*2, j + dj*2))
             return 1;
-
     return 0;
 }
 
@@ -104,48 +150,15 @@ void afficher_plateau(Jeu* jeu)
 }
 
 /**
- * \brief Charge une partie
- * \param jeu Le struct dans lequel charger la partie
- */
-void jeu_charger(Jeu *jeu)
-{
-    scanf("%d%d%d", &jeu->nb_joueurs, &jeu->tour, &jeu->joueur_courant);
-    for (int j = 0; j < jeu->nb_joueurs; j++)
-        scanf("%d%d", &jeu->joueur[j].etat, &jeu->joueur[j].score);
-    scanf("%d%d%d", &jeu->pion_est_saisi, &jeu->pion_i, &jeu->pion_j);
-    for (int i = 0; i < TAILLE; i++)
-        for (int j = 0; j < TAILLE; j++)
-            scanf("%d", &jeu->plateau.pion[i][j]);
-}
-
-/**
- * \brief Print le struct dans la console
- * \param jeu La partie
- */
-void jeu_ecrire(Jeu *jeu)
-{
-    printf("%d %d %d\n", jeu->nb_joueurs, jeu->tour, jeu->joueur_courant);
-    for (int j = 0; j < jeu->nb_joueurs; j++)
-        printf("%d %d\n", jeu->joueur[j].etat, jeu->joueur[j].score);
-    printf("%d %d %d\n", jeu->pion_est_saisi, jeu->pion_i, jeu->pion_j);
-    for (int i = 0; i < TAILLE; i++) {
-        printf("%d", jeu->plateau.pion[i][0]);
-        for (int j = 1; j < TAILLE; j++)
-            printf(" %d", jeu->plateau.pion[i][j]);
-        putchar('\n');
-    }
-}
-
-/**
  * \brief Capturer un pion
  * \param jeu La partie dans laquelle le pion est capturé
  * \param i La ligne du pion a capturer
  * \param j La colonne du pion a capturer
- * \return 1 si tout s'est bien passé
+ * \return 1 si le pion a été capturé, 0 sinon
  */
 int jeu_capturer(Jeu *jeu, int i, int j)
 {
-    if (!saut_valide(&jeu->plateau, jeu->pion_i, jeu->pion_j, i, j)) return 0;
+    if (!case_valide(i, j)) return 0;
     jeu->joueur[jeu->joueur_courant].score += score_pion(jeu->plateau.pion[i][j]);
     jeu->plateau.pion[i][j] = P_VIDE;
     return 1;
@@ -156,12 +169,12 @@ int jeu_capturer(Jeu *jeu, int i, int j)
  * \param jeu La partie dans laquelle sélectionner le pion
  * \param i La ligne du pion sélectionné
  * \param j La colonne du pion sélectionné
- * \return 1 si tout s'est bien passé
+ * \return 1 si le pion a été saisi, 0 sinon
  */
 int jeu_saisir_pion(Jeu *jeu, int i, int j)
 {
-    if (!peut_sauter(&jeu->plateau, i, j)) return 0;
-    
+    if (!case_valide(i, j) || !jeu->plateau.pion[i][j] ||
+        !pion_peut_sauter(&jeu->plateau, i, j)) return 0;
     jeu->pion_est_saisi = 1;
     jeu->pion_i = i;
     jeu->pion_j = j;
@@ -172,8 +185,8 @@ int jeu_saisir_pion(Jeu *jeu, int i, int j)
  * \brief Fait sauter le pion sélectionné vers une case
  * \param jeu La partie dans laquelle faire sauter le pion
  * \param i La ligne de destination
- * \param j La colinne de destination
- * \return 1 si tout s'est bien passé
+ * \param j La colonne de destination
+ * \return 1 si le pion a sauté, 0 sinon
  */
 int jeu_sauter_vers(Jeu *jeu, int i, int j)
 {
@@ -190,7 +203,7 @@ int jeu_sauter_vers(Jeu *jeu, int i, int j)
 /**
  * \brief Permet à un joueur d'arrêter de jouer
  * \param jeu La partie dans laquelle le joueur arrête de jouer
- * \return 1 si tout s'est bien passé
+ * \return 1 si le joueur a arrêté de jouer, 0 sinon
  */
 int jeu_arreter(Jeu *jeu)
 {
@@ -233,19 +246,6 @@ void entree_joueur(int *i, int *j, const char* prompt, ...) {
         scanf("%d%d", i, j);
         (*i)--; (*j)--;
     } while (!case_valide(*i, *j) && puts("Case invalide. "));
-}
-
-/**
- * \brief Compte le nombre de joueurs actifs
- * \param jeu La partie dans laquelle compter le nombre de joueurs actifs
- */
-int compte_joueurs_actifs(Jeu *jeu) {
-    int joueurs_actifs = 0;
-    for (int i = 0; i < jeu->nb_joueurs; i++)
-        if (jeu->joueur[i].etat)
-            joueurs_actifs++;
-    
-    return joueurs_actifs;
 }
 
 /**
@@ -302,7 +302,7 @@ void init_jeu(Jeu *jeu)
 int jeu_est_fini(Jeu *jeu) {
     for (unsigned char i = 0; i < 8; i++)
     for (unsigned char j = 0; j < 8; j++)
-        if (jeu->plateau.pion[i][j] && peut_sauter(&jeu->plateau, i, j))
+        if (jeu->plateau.pion[i][j] && pion_peut_sauter(&jeu->plateau, i, j))
             return 0;
 
     return 1;
@@ -356,7 +356,7 @@ int main()
         afficher_plateau(&jeu);
         do {
             entree_joueur(&i, &j, "Position du pion sauteur ?");
-        } while (!peut_sauter(&jeu.plateau, i, j) && puts("Le pion ne peut pas sauter."));
+        } while (!pion_peut_sauter(&jeu.plateau, i, j) && puts("Le pion ne peut pas sauter."));
         jeu_saisir_pion(&jeu, i, j);
 
         do {
@@ -370,7 +370,7 @@ int main()
             } while (!saut_valide(&jeu.plateau, jeu.pion_i, jeu.pion_j, i, j) && puts("Saut invalide."));
 
             jeu_sauter_vers(&jeu, i, j);
-        } while (peut_sauter(&jeu.plateau, i, j));
+        } while (pion_peut_sauter(&jeu.plateau, i, j));
         jeu.pion_est_saisi = 0;
 
         if (compte_joueurs_actifs(&jeu) > 1) {
