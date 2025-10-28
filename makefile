@@ -11,4 +11,4 @@ run:
 	./multi_dames
 
 release:
-	zip KUNTZ_LI.zip multi_dames.c makefile
+	zip Kuntz_Li.zip multi_dames.c makefile
