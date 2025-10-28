@@ -1,7 +1,14 @@
 Groupe TP : Dble lic
+
 Noms:
-- KUNTZ Nathan
-- LI Jérémy
-Compilation : make build
-Jouer : make run
+    - KUNTZ Nathan
+    - LI Jérémy
+
+Comment compiler :
+    - make build
+
+Comment jouer ? :
+    - make run
+    - suivre les instructions à l'écran
+
 Difficultés : Aucune
