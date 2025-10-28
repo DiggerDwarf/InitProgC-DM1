@@ -342,6 +342,24 @@ void liste_sauts_possibles(Plateau *plateau, int i, int j) {
     putchar('\n');
 }
 
+/**
+ * \brief Enlève les points restants au dernier joueur
+ * \param jeu l'état du jeu
+ */
+void jeu_enleve_derniers_points(Jeu *jeu) {
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (jeu->plateau.pion[i][j] != P_VIDE) {
+                jeu->joueur[jeu->joueur_courant].score -= score_pion(jeu->plateau.pion[i][j]);
+            }
+        }
+        
+    }
+    
+}
+
 int main()
 {
     Jeu jeu;
@@ -384,6 +402,8 @@ int main()
 
         jeu_joueur_suivant(&jeu);
     };
+
+    jeu_enleve_derniers_points(&jeu);
 
     afficher_info(&jeu);
     afficher_gagnant(&jeu);
