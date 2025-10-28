@@ -373,12 +373,12 @@ int main()
         afficher_info(&jeu);
         afficher_plateau(&jeu);
         do {
-            entree_joueur(&i, &j, "Joueur %d, Position du pion sauteur ?", jeu.joueur_courant);
+            entree_joueur(&i, &j, "Joueur %d, Position du pion sauteur ?", jeu.joueur_courant+1);
         } while (!pion_peut_sauter(&jeu.plateau, i, j) && printf("Le pion ne peut pas sauter.\n"));
         jeu_saisir_pion(&jeu, i, j);
 
         do {
-            printf("\033[2J\033[1;1H");  // you know what this does. everyone's seen it.
+            printf("\033[2J\033[1;1H");
             afficher_info(&jeu);
             afficher_plateau(&jeu);
 
@@ -404,8 +404,10 @@ int main()
     };
 
     jeu_enleve_derniers_points(&jeu);
-
+    
+    printf("\033[2J\033[1;1H");
     afficher_info(&jeu);
+    afficher_plateau(&jeu);
     afficher_gagnant(&jeu);
 
     return 0;
